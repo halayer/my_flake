@@ -1,24 +1,16 @@
 {
-  description = "Mein erster flake";
+  description = "NixOS config flake";
 
   inputs = {
-    nixpkgs.url = "github:nixos/nixpkgs?ref=nixos-unstable";
-    home-manager = {
-      url = "github:nix-community/home-manager";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
+    nixpkgs.url = "github:nixos/nixpkgs/nixos-24.05";
   };
 
-  outputs = { self, nixpkgs , ... } @ inputs: let
-    hm = inputs.home-manager;
-  in {
-    # packages.x86_64-linux.hello = nixpkgs.legacyPackages.x86_64-linux.hello;
-    # packages.x86_64-linux.default = self.packages.x86_64-linux.hello;
-
-    nixosConfigurations.nixos = nixpkgs.lib.nixosSystem {
+  outputs = { self, nixpkgs, ... } @ inputs: {
+    nixosConfigurations.default = nixpkgs.lib.nixosSystem {
+      extraArgs = { inherit inputs; };
+      # args = { inherit inputs; };
       modules = [
         ./configuration.nix
-        hm.nixosModules.default
       ];
     };
   };

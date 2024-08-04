@@ -4,50 +4,53 @@
 { config, lib, pkgs, modulesPath, ... }:
 
 {
-  imports = [ ];
+  imports =
+    [ (modulesPath + "/installer/scan/not-detected.nix")
+    ];
 
-  boot.initrd.availableKernelModules = [ "ata_piix" "ohci_pci" "ehci_pci" "ahci" "sd_mod" "sr_mod" ];
-  boot.initrd.kernelModules = [ ];
-  boot.kernelModules = [ ];
+  boot.initrd.availableKernelModules = [ "nvme" "xhci_pci" "ahci" "usbhid" "usb_storage" "sd_mod" ];
+  boot.initrd.kernelModules = [ "amdgpu" ];
+  boot.initrd.supportedFilesystems = [ ];
+  boot.supportedFilesystems = [ "ntfs" ];
+  boot.kernelModules = [ "kvm-amd" ];
   boot.extraModulePackages = [ ];
 
-  # fileSystems."/" =
-  #   { device = "/dev/disk/by-uuid/d2e2324b-4758-46a7-ada0-4c6fc77a135a";
-  #     fsType = "btrfs";
-  #     options = [ "subvol=@" ];
-  #   };
-
-  boot.initrd.luks.devices."cryptroot".device = "/dev/disk/by-uuid/2ea0e9c7-e5f9-4e18-9ba9-70afd31dcaff";
-
   fileSystems."/" =
-    { device = "/dev/disk/by-uuid/d2e2324b-4758-46a7-ada0-4c6fc77a135a";
+    { device = "/dev/disk/by-uuid/b2830b9a-dc4b-45ac-8149-431d7811ed16";
       fsType = "btrfs";
       options = [ "subvol=@" ];
     };
 
+  boot.initrd.luks.devices."linux".device = "/dev/disk/by-uuid/7df0e01d-a3c4-4b50-b74c-ad7c41790f4d";
+
+  fileSystems."/home" =
+    { device = "/dev/disk/by-uuid/b2830b9a-dc4b-45ac-8149-431d7811ed16";
+      fsType = "btrfs";
+      options = [ "subvol=@/home" ];
+    };
+
+  fileSystems."/snapshots" =
+    { device = "/dev/disk/by-uuid/b2830b9a-dc4b-45ac-8149-431d7811ed16";
+      fsType = "btrfs";
+      options = [ "compress,subvol=@/snapshots" ];
+    };
+
   fileSystems."/boot" =
-    { device = "/dev/disk/by-uuid/2AC2-746F";
+    # { device = "/dev/disk/by-uuid/76A4-2B10";
+    { device = "/dev/disk/by-uuid/B1B0-3797";
       fsType = "vfat";
       options = [ "fmask=0022" "dmask=0022" ];
     };
 
-  swapDevices =
-    [ { device = "/dev/disk/by-uuid/6a1821d6-88d1-4687-b903-82aa28cf96d5"; }
-    ];
+  swapDevices = [ ];
 
   # Enables DHCP on each ethernet and wireless interface. In case of scripted networking
   # (the default) this is the recommended approach. When using systemd-networkd it's
   # still possible to use this option, but it's recommended to use it in conjunction
   # with explicit per-interface declarations with `networking.interfaces.<interface>.useDHCP`.
   networking.useDHCP = lib.mkDefault true;
-  # networking.interfaces.enp0s3.useDHCP = lib.mkDefault true;
+  # networking.interfaces.enp9s0.useDHCP = lib.mkDefault true;
 
   nixpkgs.hostPlatform = lib.mkDefault "x86_64-linux";
-  virtualisation.virtualbox.guest.enable = true;
-
-  # Eigens getaetigte Aenderungen
-  hardware.graphics = {
-    enable = true;
-    enable32Bit = true;
-  };
+  hardware.cpu.amd.updateMicrocode = lib.mkDefault config.hardware.enableRedistributableFirmware;
 }

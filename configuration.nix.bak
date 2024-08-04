@@ -10,13 +10,9 @@
       ./hardware-configuration.nix
     ];
 
-  boot.loader.efi.canTouchEfiVariables = true;
+  # Use the systemd-boot EFI boot loader.
   boot.loader.grub = {
-    enable = true;
-    efiSupport = true;
-    useOSProber = true;
-    device = "nodev";
-  };
+    
 
   networking.hostName = "HAL-PRIVAT-PC1"; # Define your hostname.
   # Pick only one of the below networking options.
@@ -38,50 +34,29 @@
   #   useXkbConfig = true; # use xkb.options in tty.
   };
 
+  # Enable the X11 windowing system.
+  # services.xserver.enable = true;
+
+
+  
+
+  # Configure keymap in X11
+  # services.xserver.xkb.layout = "us";
+  # services.xserver.xkb.options = "eurosign:e,caps:escape";
+
   # Enable CUPS to print documents.
   services.printing.enable = true;
 
   # Enable sound.
   # hardware.pulseaudio.enable = true;
-  # hardware.pulseaudio.support32Bit = true;
   # OR
   services.pipewire = {
     enable = true;
-    alsa.enable = true;
-    alsa.support32Bit = true;
     pulse.enable = true;
-    jack.enable = true;
   };
-  # services.pipewire.wireplumber.extraConfig.bluetoothEnhancements = {
-  #   "monitor.bluez.properties" = {
-  #     "bluez5.enable-sbc-xq" = true;
-  #     "bluez5.enable-msbc" = true;
-  #     "bluez5.enable-hw-volume" = true;
-  #     "bluez5.roles" = [ "a2dp_sink" "a2dp_source" "hsp_hs" "hsp_ag" "hfp_hf" "hfp_ag" ];
-  #   };
-  # };
-
-  # Enable bluetooth.
-  hardware.bluetooth = {
-    enable = true;
-    powerOnBoot = true;
-    # settings = {
-    #   General = {
-    #     Enable = "Source,Sink,Media,Socket";
-    #   };
-    # };
-  };
-  services.blueman.enable = true;
 
   # Enable touchpad support (enabled default in most desktopManager).
   # services.libinput.enable = true;
-
-  # nixpkgs.config.allowUnfree = true;
-  # nixpkgs.config.packageOverrides = pkgs: {
-  #   nur = import (builtins.fetchTarball { url = "https://github.com/nix-community/NUR/archive/master.tar.gz"; sha256 = "1aslqpcd2gqcxapql203iijrf54bsyvh4mdl0s5gsm5jbw56rbmr"; }) {
-  #     inherit pkgs;
-  #   };
-  # };
 
   # Define a user account. Don't forget to set a password with ‘passwd’.
   # users.users.alice = {
@@ -95,16 +70,6 @@
   users.users.henning = {
     isNormalUser = true;
     extraGroups = [ "wheel" ];
-    packages = with pkgs; [
-      wofi
-      foot
-      firefox
-      vlc
-      gh
-      pavucontrol
-      htop
-      # nur.repos.nltch.spotify-adblock
-    ];
   };
 
   # List packages installed in system profile. To search, run:
@@ -122,11 +87,10 @@
     })
     wget
     git
-    tree
   ];
 
   environment.sessionVariables = {
-    EDITOR = "vim";
+    EDITOR = vim;
   };
 
   # Some programs need SUID wrappers, can be configured further or are
@@ -173,14 +137,6 @@
   system.stateVersion = "24.05"; # Did you read the comment?
 
   nix.settings.experimental-features = [ "nix-command" "flakes" ];
-
-  programs.hyprland.enable = true;
-
-  nix.gc = {
-    automatic = true;
-    dates = "weekly";
-    options = "--delete-older-than 30d";
-  };
 
 }
 
